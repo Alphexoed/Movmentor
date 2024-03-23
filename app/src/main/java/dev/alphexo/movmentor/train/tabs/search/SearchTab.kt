@@ -1,4 +1,4 @@
-package dev.alphexo.movmentor.train.tabs
+package dev.alphexo.movmentor.train.tabs.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

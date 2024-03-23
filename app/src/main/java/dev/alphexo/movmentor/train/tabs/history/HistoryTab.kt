@@ -1,4 +1,4 @@
-package dev.alphexo.movmentor.train.tabs
+package dev.alphexo.movmentor.train.tabs.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

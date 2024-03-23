@@ -1,4 +1,4 @@
-package dev.alphexo.movmentor.train.tabs
+package dev.alphexo.movmentor.train.tabs.timetable
 
 
 import android.util.Log
@@ -32,6 +32,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +45,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import dev.alphexo.movmentor.R
 import dev.alphexo.movmentor.train.endpoints.FromToDate
 import dev.alphexo.movmentor.train.endpoints.FromToDateKey
@@ -92,7 +93,6 @@ class CurrentTime {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview(showSystemUi = true, showBackground = true)
 fun TimetableTab() {
     val currentTime by remember { mutableStateOf(CurrentTime()) }
     var text by rememberSaveable { mutableStateOf("") }
@@ -110,7 +110,6 @@ fun TimetableTab() {
         initialHour = currentTime.hours,
         is24Hour = true
     )
-
 
     if (showTimePicker) {
         BasicAlertDialog(
@@ -153,8 +152,7 @@ fun TimetableTab() {
                             currentTime.hours = stateTimePicker.hour
                             currentTime.minutes = stateTimePicker.minute
 
-                            Log.println(
-                                Log.WARN,
+                            Log.w(
                                 "FromToDate.Entered",
                                 "Entered time: ${currentTime.format(currentTime.time)}"
                             )
@@ -352,9 +350,9 @@ fun searchTripResultLogic(
     timetableResultList.clear()
 
     val tripResultInfra: List<JSONObject> = mutableListOf<JSONObject>().apply {
-        val jsonArray = stationsTripsResult.getJSONArray("resp:infra")
-        for (index in 0 until jsonArray.length()) {
-            add(jsonArray.getJSONObject(index))
+        val jsonArray = stationsTripsResult.optJSONArray("resp:infra")
+        for (index in 0 until (jsonArray?.length() ?: 0)) {
+            add(jsonArray!!.getJSONObject(index))
         }
     }
 
