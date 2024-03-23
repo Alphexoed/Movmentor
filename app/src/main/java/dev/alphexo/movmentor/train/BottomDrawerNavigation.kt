@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import dev.alphexo.movmentor.train.tabs.history.HistoryTab
 import dev.alphexo.movmentor.train.tabs.search.SearchTab
-import dev.alphexo.movmentor.train.tabs.timetable.Schedule
 import dev.alphexo.movmentor.train.tabs.timetable.TimetableTab
 
 
