@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,10 +51,10 @@ fun SearchTab() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBars() {
-    var departureText by rememberSaveable { mutableStateOf("") }
-    var destinationText by rememberSaveable { mutableStateOf("") }
-    var departureActive by rememberSaveable { mutableStateOf(false) }
-    var destinationActive by rememberSaveable { mutableStateOf(false) }
+    var departureText by remember { mutableStateOf("") }
+    var destinationText by remember { mutableStateOf("") }
+    var departureActive by remember { mutableStateOf(false) }
+    var destinationActive by remember { mutableStateOf(false) }
 
     Box(Modifier
         .semantics { isTraversalGroup = true }

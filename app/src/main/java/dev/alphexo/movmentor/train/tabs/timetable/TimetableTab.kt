@@ -36,7 +36,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,14 +92,14 @@ class CurrentTime {
 @Composable
 fun TimetableTab() {
     val currentTime by remember { mutableStateOf(CurrentTime()) }
-    var text by rememberSaveable { mutableStateOf("") }
-    var active by rememberSaveable { mutableStateOf(false) }
-    var isLoading by rememberSaveable { mutableStateOf(false) }
+    var text by remember { mutableStateOf("") }
+    var active by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     val timetableEndpoint = Timetable()
     val searchQueryList = remember { mutableStateListOf<SearchQuery>() }
     val timetableResultList = remember { mutableStateListOf<TimetableResult>() }
-    var stationsEndpointResult by rememberSaveable { mutableStateOf<JSONArray?>(null) }
-    var stationsTripsResult by rememberSaveable { mutableStateOf<JSONObject?>(null) }
+    var stationsEndpointResult by remember { mutableStateOf<JSONArray?>(null) }
+    var stationsTripsResult by remember { mutableStateOf<JSONObject?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var showTimePicker by remember { mutableStateOf(false) }
     val stateTimePicker = rememberTimePickerState(
