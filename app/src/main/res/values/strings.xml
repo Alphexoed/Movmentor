@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Movmentor</string>
+    <string name="app_description">Public transportation materialized and simplified</string>
+
+    <string name="trains_search_hint">Station name…</string>
+    <string name="trains_departure_search_hint">Departure station name…</string>
+    <string name="trains_destination_search_hint">Destination station name…</string>
+    <string name="refresh_auth_token">Refresh authorization token</string>
+    <string name="please_wait">Please wait…</string>
+</resources>
