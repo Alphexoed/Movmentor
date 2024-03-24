@@ -1,6 +1,7 @@
 package dev.alphexo.movmentor.train.models
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -66,7 +67,7 @@ fun TimetableResultModel(
             .wrapContentHeight()
             .clickable {
                 Intent(context, TrainScheduleActivity::class.java).let {
-                    it.putExtra("trainNumber", trainNumber)
+                    it.putExtra("trainNumber", trainNumber.toString())
                     context.startActivity(it)
                 }
             }
