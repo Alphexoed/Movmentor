@@ -48,12 +48,14 @@ import androidx.compose.ui.zIndex
 import dev.alphexo.movmentor.R
 import dev.alphexo.movmentor.train.endpoints.FromToDate
 import dev.alphexo.movmentor.train.endpoints.FromToDateKey
+import dev.alphexo.movmentor.train.endpoints.Stations
 import dev.alphexo.movmentor.train.endpoints.Timetable
 import dev.alphexo.movmentor.train.models.TimetableResultModel
 import dev.alphexo.movmentor.train.models.data.SearchQuery
 import dev.alphexo.movmentor.train.models.data.TimetableResult
 import dev.alphexo.movmentor.train.models.data.buildTimetableResult
 import dev.alphexo.movmentor.train.models.data.getServiceType
+import dev.alphexo.movmentor.utils.toJSONObjectList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -96,6 +98,7 @@ fun TimetableTab() {
     var active by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val timetableEndpoint = Timetable()
+    val stationsEndpoint = Stations()
     val searchQueryList = remember { mutableStateListOf<SearchQuery>() }
     val timetableResultList = remember { mutableStateListOf<TimetableResult>() }
     var stationsEndpointResult by remember { mutableStateOf<JSONArray?>(null) }
@@ -189,7 +192,7 @@ fun TimetableTab() {
                     coroutineScope.launch {
                         // Perform the network call on the background thread
                         coroutineScope.async(Dispatchers.Default) {
-                            timetableEndpoint.stationName(text) { result: JSONArray ->
+                            stationsEndpoint.fromName(text) { result: JSONArray ->
                                 stationsEndpointResult = result
                             }
                         }.await()
@@ -339,38 +342,26 @@ fun searchQueryLogic(searchQueryList: MutableList<SearchQuery>, stationsEndpoint
     }
 }
 
-
 fun searchTripResultLogic(
     timetableResultList: MutableList<TimetableResult>,
     stationsTripsResult: JSONObject
 ) {
     timetableResultList.clear()
 
-    val tripResultInfra: List<JSONObject> = mutableListOf<JSONObject>().apply {
-        val jsonArray = stationsTripsResult.optJSONArray("resp:infra")
-        for (index in 0 until (jsonArray?.length() ?: 0)) {
-            add(jsonArray!!.getJSONObject(index))
-        }
-    }
+    val tripResultInfra =
+        stationsTripsResult.optJSONArray("resp:infra")?.toJSONObjectList() ?: emptyList()
+    val tripResultCP = stationsTripsResult.getJSONArray("resp:cp").toJSONObjectList()
 
-    val tripResultCP: List<JSONObject> = mutableListOf<JSONObject>().apply {
-        val jsonArray = stationsTripsResult.getJSONArray("resp:cp")
-        for (index in 0 until jsonArray.length()) {
-            add(jsonArray.getJSONObject(index))
-        }
-    }
-
-    val cpData = tripResultCP.map { it: JSONObject ->
+    val cpPlatforms = tripResultCP.map { jsonObject ->
         mapOf(
-            "trainNumber" to it.getInt("trainNumber").toString(),
-            "platform" to it.optString("platform")
+            "trainNumber" to jsonObject.getString("trainNumber"),
+            "platform" to jsonObject.getString("platform")
         )
-    }
+    }.associateBy { it["trainNumber"] } // Map for faster lookup
 
     tripResultInfra.forEach { infraObject ->
-        val cpPlatform =
-            cpData.find { it["trainNumber"] == infraObject.getString("NComboio1") }?.get("platform")
-        infraObject.put("CP:Plataforma", cpPlatform)
+        val cpPlatform = cpPlatforms[infraObject.getString("NComboio1")]
+        infraObject.put("CP:Plataforma", cpPlatform?.get("platform"))
         timetableResultList.add(buildTimetableResult(infraObject))
     }
 }
