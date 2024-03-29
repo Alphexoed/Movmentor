@@ -1,8 +1,10 @@
 package dev.alphexo.movmentor.train.endpoints
 
+import android.util.Log
 import dev.alphexo.movmentor.network.NetworkInterface
 import dev.alphexo.movmentor.network.NetworkInterface.RequestMethod
 import dev.alphexo.movmentor.utils.addCharAtIndex
+import dev.alphexo.movmentor.utils.calculateNode
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -84,7 +86,7 @@ class Timetable {
 
         network.sendRequest(
             method = RequestMethod.GET,
-            url = "$apiCP/siv/stations/${nodeId.toString().addCharAtIndex('-', 2)}/timetable/" +
+            url = "$apiCP/siv/stations/${calculateNode(nodeId.toString())}/timetable/" +
                     fromToDate.from.getValue(FromToDateKey.DATE) +
                     "?start=" +
                     fromToDate.from.getValue(FromToDateKey.HOUR),
