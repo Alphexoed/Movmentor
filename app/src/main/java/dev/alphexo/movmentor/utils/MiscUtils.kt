@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter
 fun String.addCharAtIndex(char: Char, index: Int) =
     StringBuilder(this).apply { insert(index, char) }.toString()
 
+    
 fun extractResponse(
     statusCode: Int,
     response: String,
@@ -41,4 +42,11 @@ fun convertDateFormat(originalFormat: String, desiredFormat: String, dateString:
     val formatter = DateTimeFormatter.ofPattern(originalFormat)
     val localDate = LocalDate.parse(dateString, formatter)
     return localDate.format(DateTimeFormatter.ofPattern(desiredFormat))
+}
+
+// Calculates a formatted node string based on the provided node ID,
+// with a hyphen after the first two digits and all leading zeros removed
+// from the second part.
+fun calculateNode(nodeId: String): String {
+    return "${nodeId.substring(0, 2)}-${nodeId.substring(2).trimStart('0')}"
 }
