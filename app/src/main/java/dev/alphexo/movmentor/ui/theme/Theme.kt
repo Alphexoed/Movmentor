@@ -78,20 +78,29 @@ private val DarkColors = darkColorScheme(
 )
 
 val ColorScheme.warningContainer: Color
-    @Composable
-    get() = if (isSystemInDarkTheme()) dark_WarningContainer else light_WarningContainer
+    @Composable get() = if (isSystemInDarkTheme()) dark_WarningContainer else light_WarningContainer
 
 val ColorScheme.onWarningContainer: Color
-    @Composable
-    get() = if (isSystemInDarkTheme()) dark_onWarningContainer else light_onWarningContainer
+    @Composable get() = if (isSystemInDarkTheme()) dark_onWarningContainer else light_onWarningContainer
+
+val ColorScheme.informationContainer: Color
+    @Composable get() = if (isSystemInDarkTheme()) dark_InformationContainer else light_InformationContainer
+
+val ColorScheme.onInformationContainer: Color
+    @Composable get() = if (isSystemInDarkTheme()) dark_onInformationContainer else light_onInformationContainer
+
+val ColorScheme.successContainer: Color
+    @Composable get() = if (isSystemInDarkTheme()) dark_SuccessContainer else light_SuccessContainer
+
+val ColorScheme.onSuccessContainer: Color
+    @Composable get() = if (isSystemInDarkTheme()) dark_onSuccessContainer else light_onSuccessContainer
 
 
 @Composable
 fun MovmentorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean = false, content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor -> {
@@ -104,8 +113,6 @@ fun MovmentorTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = colorScheme, typography = Typography, content = content
     )
 }
