@@ -2,6 +2,8 @@ package dev.alphexo.movmentor.utils
 
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 fun String.addCharAtIndex(char: Char, index: Int) =
@@ -10,10 +12,11 @@ fun String.addCharAtIndex(char: Char, index: Int) =
 fun extractResponse(
     statusCode: Int,
     response: String,
-    result: (response: JSONArray) -> Unit
+    result: (response: Any) -> Unit
 ) {
     if (statusCode == 200 && response.startsWith("{")) {
         JSONObject(response).optJSONArray("response")?.let { result(it) }
+            ?: JSONObject(response).optJSONObject("response")?.let { result(it) }
     }
 }
 
@@ -27,3 +30,15 @@ fun <T> JSONArray.customMap(transform: (JSONObject) -> T): List<T> {
 }
 
 fun JSONArray.toJSONObjectList(): List<JSONObject> = (0 until length()).map { getJSONObject(it) }
+
+
+object DateFormats {
+    val dayMonthYear = "dd-MM-yyyy"
+    val yearMonthDay = "yyyy-MM-dd"
+}
+
+fun convertDateFormat(originalFormat: String, desiredFormat: String, dateString: String): String {
+    val formatter = DateTimeFormatter.ofPattern(originalFormat)
+    val localDate = LocalDate.parse(dateString, formatter)
+    return localDate.format(DateTimeFormatter.ofPattern(desiredFormat))
+}
