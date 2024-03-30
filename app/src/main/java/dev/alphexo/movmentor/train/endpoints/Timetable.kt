@@ -4,6 +4,7 @@ import android.util.Log
 import dev.alphexo.movmentor.network.NetworkInterface
 import dev.alphexo.movmentor.network.NetworkInterface.RequestMethod
 import dev.alphexo.movmentor.utils.addCharAtIndex
+import dev.alphexo.movmentor.utils.extractResponse
 import dev.alphexo.movmentor.utils.calculateNode
 import org.json.JSONArray
 import org.json.JSONObject
@@ -24,29 +25,6 @@ class Timetable {
     private val apiInfra = URLs.Infra.SELECTED
     private val apiCP = URLs.CP.SELECTED
     private val network = NetworkInterface()
-
-    private fun extractResponse(
-        statusCode: Int,
-        response: String,
-        result: (response: JSONArray) -> Unit
-    ) {
-        if (statusCode == 200 && response.startsWith("{")) {
-            JSONObject(response).optJSONArray("response")?.let { result(it) }
-        }
-    }
-
-
-    suspend fun stationName(name: String, result: (response: JSONArray) -> Unit) {
-        network.sendRequest(
-            method = RequestMethod.GET,
-            url = "$apiInfra/negocios-e-servicos/estacao-nome/$name"
-        )
-        { statusCode: Int, response: String ->
-            extractResponse(statusCode, response) { extractedResponse ->
-                result(extractedResponse)
-            }
-        }
-    }
 
     suspend fun getTimetable(
         nodeId: Int,
@@ -79,7 +57,7 @@ class Timetable {
             extractResponse(statusCode, response) { extractedResponse ->
                 final.put(
                     "resp:infra",
-                    JSONObject(extractedResponse[0].toString()).getJSONArray("NodesComboioTabelsPartidasChegadas")
+                    JSONObject((extractedResponse as JSONArray)[0].toString()).getJSONArray("NodesComboioTabelsPartidasChegadas")
                 )
             }
         }

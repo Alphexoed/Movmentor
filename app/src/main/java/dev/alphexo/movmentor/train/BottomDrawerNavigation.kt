@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import dev.alphexo.movmentor.train.tabs.HistoryTab
-import dev.alphexo.movmentor.train.tabs.SearchTab
-import dev.alphexo.movmentor.train.tabs.TimetableTab
+import dev.alphexo.movmentor.train.tabs.history.HistoryTab
+import dev.alphexo.movmentor.train.tabs.search.SearchTab
+import dev.alphexo.movmentor.train.tabs.timetable.TimetableTab
 
 
 @Composable

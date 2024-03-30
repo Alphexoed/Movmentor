@@ -1,5 +1,7 @@
 package dev.alphexo.movmentor.train.models
 
+import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,10 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import dev.alphexo.movmentor.train.endpoints.FromToDate
 import dev.alphexo.movmentor.train.endpoints.FromToDateKey
 import dev.alphexo.movmentor.train.models.data.ServiceType
+import dev.alphexo.movmentor.train.tabs.timetable.TrainScheduleActivity
 import dev.alphexo.movmentor.ui.theme.Typography
 import dev.alphexo.movmentor.ui.theme.onWarningContainer
 import dev.alphexo.movmentor.ui.theme.warningContainer
@@ -42,11 +46,14 @@ fun TimetableResultModel(
     platform: String? = "undefined",
     operator: String = "undefined",
     trainPassed: Boolean = false,
+    currentStation: String? = "undefined",
     departureStation: String = "undefined",
     destinationStation: String = "undefined",
     fromToDate: FromToDate? = null,
     warnings: String? = null
 ) {
+    val context = LocalContext.current
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (trainPassed) {
@@ -58,6 +65,14 @@ fun TimetableResultModel(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .clickable {
+                Intent(context, TrainScheduleActivity::class.java).let {
+                    it.putExtra("currentStation", currentStation)
+                    it.putExtra("trainNumber", trainNumber)
+                    it.putExtra("date", fromToDate?.from?.get(FromToDateKey.DATE))
+                    context.startActivity(it)
+                }
+            }
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
