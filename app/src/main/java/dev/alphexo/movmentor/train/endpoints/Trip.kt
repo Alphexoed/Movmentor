@@ -2,7 +2,14 @@ package dev.alphexo.movmentor.train.endpoints
 
 import dev.alphexo.movmentor.network.NetworkInterface
 import dev.alphexo.movmentor.utils.extractResponse
-import org.json.JSONArray
+import org.json.JSONObject
+
+enum class EnumStopCard {
+    PENDING,
+    PASSED,
+    WARNING,
+    CURRENT
+}
 
 class Trip {
     private val apiInfra = URLs.Infra.SELECTED
@@ -10,8 +17,8 @@ class Trip {
 
     suspend fun fromTrainNumber(
         trainNumber: Int,
-        date: FromToDate,
-        result: (response: JSONArray) -> Unit
+        date: String,
+        result: (response: JSONObject) -> Unit
     ) {
         network.sendRequest(
             method = NetworkInterface.RequestMethod.GET,
@@ -19,7 +26,7 @@ class Trip {
         )
         { statusCode: Int, response: String ->
             extractResponse(statusCode, response) { extractedResponse ->
-                result(extractedResponse)
+                result(extractedResponse as JSONObject)
             }
         }
     }
