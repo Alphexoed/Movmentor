@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter
 fun String.addCharAtIndex(char: Char, index: Int) =
     StringBuilder(this).apply { insert(index, char) }.toString()
 
-    
+
 fun extractResponse(
     statusCode: Int,
     response: String,
