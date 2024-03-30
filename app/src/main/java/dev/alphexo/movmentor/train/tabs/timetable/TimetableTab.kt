@@ -55,6 +55,7 @@ import dev.alphexo.movmentor.train.models.data.SearchQuery
 import dev.alphexo.movmentor.train.models.data.TimetableResult
 import dev.alphexo.movmentor.train.models.data.buildTimetableResult
 import dev.alphexo.movmentor.train.models.data.getServiceType
+import dev.alphexo.movmentor.utils.customMap
 import dev.alphexo.movmentor.utils.toJSONObjectList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -106,9 +107,7 @@ fun TimetableTab() {
     val coroutineScope = rememberCoroutineScope()
     var showTimePicker by remember { mutableStateOf(false) }
     val stateTimePicker = rememberTimePickerState(
-        initialMinute = currentTime.minutes,
-        initialHour = currentTime.hours,
-        is24Hour = true
+        initialMinute = currentTime.minutes, initialHour = currentTime.hours, is24Hour = true
     )
 
     if (showTimePicker) {
@@ -147,19 +146,17 @@ fun TimetableTab() {
                     }
 
                     // confirm button
-                    TextButton(
-                        onClick = {
-                            currentTime.hours = stateTimePicker.hour
-                            currentTime.minutes = stateTimePicker.minute
+                    TextButton(onClick = {
+                        currentTime.hours = stateTimePicker.hour
+                        currentTime.minutes = stateTimePicker.minute
 
-                            Log.w(
-                                "FromToDate.Entered",
-                                "Entered time: ${currentTime.format(currentTime.time)}"
-                            )
+                        Log.w(
+                            "FromToDate.Entered",
+                            "Entered time: ${currentTime.format(currentTime.time)}"
+                        )
 
-                            showTimePicker = false
-                        }
-                    ) {
+                        showTimePicker = false
+                    }) {
                         Text(text = "Confirm")
                     }
                 }
@@ -169,22 +166,21 @@ fun TimetableTab() {
 
 
     Box(
-        Modifier
-            .fillMaxSize()
+        Modifier.fillMaxSize()
     ) {
         // Talkback focus order sorts based on x and y position before considering z-index. The
         // extra Box with semantics and fillMaxWidth is a workaround to get the search bar to focus
         // before the content.
-        Box(Modifier
-            .semantics { isTraversalGroup = true }
-            .zIndex(1f)
-            .fillMaxWidth()
+        Box(
+            Modifier
+                .semantics { isTraversalGroup = true }
+                .zIndex(1f)
+                .fillMaxWidth()
 //            .background(Color.Green)
         ) {
-            DockedSearchBar(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp),
+            DockedSearchBar(modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp),
                 query = text,
                 onQueryChange = { query ->
                     text = query
@@ -192,8 +188,8 @@ fun TimetableTab() {
                     coroutineScope.launch {
                         // Perform the network call on the background thread
                         coroutineScope.async(Dispatchers.Default) {
-                            stationsEndpoint.fromName(text) { result: JSONArray ->
-                                stationsEndpointResult = result
+                            stationsEndpoint.fromName(text) { result ->
+                                stationsEndpointResult = result as JSONArray
                             }
                         }.await()
 
@@ -214,8 +210,7 @@ fun TimetableTab() {
                     }) {
                         Icon(imageVector = Icons.Rounded.Schedule, null)
                     }
-                }
-            ) {
+                }) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(16.dp),
@@ -226,52 +221,46 @@ fun TimetableTab() {
 
                     searchQueries.forEachIndexed { index, searchQuery ->
                         item(key = index) {
-                            ListItem(
-                                modifier = Modifier
-                                    .clickable {
-                                        text = searchQuery.name
-                                        active = false
-                                        isLoading = true
-                                        timetableResultList.clear()
+                            ListItem(modifier = Modifier.clickable {
+                                text = searchQuery.name
+                                active = false
+                                isLoading = true
+                                timetableResultList.clear()
 
-                                        coroutineScope.launch {
-                                            val f2d = FromToDate()
+                                coroutineScope.launch {
+                                    val f2d = FromToDate()
 
-                                            f2d.from = mapOf(
-                                                FromToDateKey.DATE to currentTime.date,
-                                                FromToDateKey.HOUR to currentTime.time
-                                            )
+                                    f2d.from = mapOf(
+                                        FromToDateKey.DATE to currentTime.date,
+                                        FromToDateKey.HOUR to currentTime.time
+                                    )
 
-                                            f2d.to = mapOf(
-                                                FromToDateKey.DATE to currentTime.date,
-                                                FromToDateKey.HOUR to "23:59"
-                                            )
+                                    f2d.to = mapOf(
+                                        FromToDateKey.DATE to currentTime.date,
+                                        FromToDateKey.HOUR to "23:59"
+                                    )
 
 
-                                            // Perform the network call on the background thread
-                                            coroutineScope.async(Dispatchers.Default) {
-                                                timetableEndpoint.getTimetable(
-                                                    searchQuery.nodeId,
-                                                    f2d
-                                                ) { result ->
-                                                    stationsTripsResult = result
-                                                }
-                                            }.await()
-
-                                            // Handle the result on the main thread
-                                            isLoading = false
-                                            stationsTripsResult?.let {
-                                                searchTripResultLogic(timetableResultList, it)
-                                            }
+                                    // Perform the network call on the background thread
+                                    coroutineScope.async(Dispatchers.Default) {
+                                        timetableEndpoint.getTimetable(
+                                            searchQuery.nodeId, f2d
+                                        ) { result ->
+                                            stationsTripsResult = result
                                         }
-                                    },
-                                headlineContent = {
-                                    Text(text = searchQuery.name)
-                                },
-                                supportingContent = {
-                                    Text(text = searchQuery.nodeId.toString())
+                                    }.await()
+
+                                    // Handle the result on the main thread
+                                    isLoading = false
+                                    stationsTripsResult?.let {
+                                        searchTripResultLogic(timetableResultList, it)
+                                    }
                                 }
-                            )
+                            }, headlineContent = {
+                                Text(text = searchQuery.name)
+                            }, supportingContent = {
+                                Text(text = searchQuery.nodeId.toString())
+                            })
                         }
                     }
                 }
@@ -309,17 +298,16 @@ fun TimetableTab() {
                         FromToDateKey.HOUR to trip.departureDate
                     )
 
-                    TimetableResultModel(
-                        service = getServiceType(trip.service),
+                    TimetableResultModel(service = getServiceType(trip.service),
                         trainNumber = trip.trainNumber1,
                         platform = trip.platform,
                         operator = trip.operator,
                         trainPassed = trip.trainPassed,
+                        currentStation = text,
                         departureStation = trip.departureStationName,
                         destinationStation = trip.destinationStationName,
                         fromToDate = f2d,
-                        warnings = trip.warnings.ifEmpty { null }
-                    )
+                        warnings = trip.warnings.ifEmpty { null })
                 }
             }
         }
@@ -329,22 +317,16 @@ fun TimetableTab() {
 fun searchQueryLogic(searchQueryList: MutableList<SearchQuery>, stationsEndpointResult: JSONArray) {
     searchQueryList.clear()
 
-    stationsEndpointResult.let { stations ->
-        stations.let {
-            for (index in 0 until stations.length()) {
-                val station = stations.optJSONObject(index)
-                val distancia = station.optInt("Distancia", 0)
-                val nodeId = station.optInt("NodeID", 0)
-                val nome = station.optString("Nome", "undefined")
-                searchQueryList.add(SearchQuery(distancia, nodeId, nome))
-            }
-        }
+    stationsEndpointResult.customMap { station ->
+        val distancia = station.optInt("Distancia", 0)
+        val nodeId = station.optInt("NodeID", 0)
+        val nome = station.optString("Nome", "undefined")
+        searchQueryList.add(SearchQuery(distancia, nodeId, nome))
     }
 }
 
 fun searchTripResultLogic(
-    timetableResultList: MutableList<TimetableResult>,
-    stationsTripsResult: JSONObject
+    timetableResultList: MutableList<TimetableResult>, stationsTripsResult: JSONObject
 ) {
     timetableResultList.clear()
 

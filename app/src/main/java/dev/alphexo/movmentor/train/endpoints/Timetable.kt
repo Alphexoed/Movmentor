@@ -4,6 +4,7 @@ import dev.alphexo.movmentor.network.NetworkInterface
 import dev.alphexo.movmentor.network.NetworkInterface.RequestMethod
 import dev.alphexo.movmentor.utils.addCharAtIndex
 import dev.alphexo.movmentor.utils.extractResponse
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -54,7 +55,7 @@ class Timetable {
             extractResponse(statusCode, response) { extractedResponse ->
                 final.put(
                     "resp:infra",
-                    JSONObject(extractedResponse[0].toString()).getJSONArray("NodesComboioTabelsPartidasChegadas")
+                    JSONObject((extractedResponse as JSONArray)[0].toString()).getJSONArray("NodesComboioTabelsPartidasChegadas")
                 )
             }
         }
