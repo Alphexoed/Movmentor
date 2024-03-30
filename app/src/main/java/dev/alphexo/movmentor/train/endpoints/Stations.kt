@@ -5,7 +5,6 @@ import dev.alphexo.movmentor.network.NetworkInterface.RequestMethod
 import dev.alphexo.movmentor.train.models.data.Station
 import dev.alphexo.movmentor.train.models.data.Stations
 import dev.alphexo.movmentor.utils.extractResponse
-import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -30,7 +29,7 @@ class Stations {
         }
     }
 
-    suspend fun fromName(name: String, result: (response: JSONArray) -> Unit) {
+    suspend fun fromName(name: String, result: (response: Any) -> Unit) {
         network.sendRequest(
             method = RequestMethod.GET,
             url = "$apiInfra/negocios-e-servicos/estacao-nome/$name"
