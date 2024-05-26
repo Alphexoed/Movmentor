@@ -56,7 +56,10 @@ fun calculateNode(nodeId: String): String {
 
 
 class MiscTrains {
-    fun searchQueryLogic(searchQueryList: MutableList<SearchQuery>, stationsEndpointResult: JSONArray) {
+    fun searchQueryLogic(
+        searchQueryList: MutableList<SearchQuery>,
+        stationsEndpointResult: JSONArray
+    ) {
         searchQueryList.clear()
 
         stationsEndpointResult.customMap { station ->

@@ -59,9 +59,10 @@ class Trip {
         data.put("classes", JSONArray().put(1).put(2))
         data.put("departureStationCode", nodeIds.first)
         data.put("searchType", 3)
-        data.put("timeLimit", JSONObject()
-            .put("limitType", 3)
-            .put("startTime", travelDate.single!![FromToDateKey.HOUR])
+        data.put(
+            "timeLimit", JSONObject()
+                .put("limitType", 3)
+                .put("startTime", travelDate.single!![FromToDateKey.HOUR])
         )
         data.put("travelDate", travelDate.single!![FromToDateKey.DATE])
 

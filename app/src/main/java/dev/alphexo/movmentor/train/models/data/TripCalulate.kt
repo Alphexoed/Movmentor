@@ -1,6 +1,5 @@
 package dev.alphexo.movmentor.train.models.data
 
-import dev.alphexo.movmentor.train.endpoints.Trip
 import dev.alphexo.movmentor.utils.customMap
 import org.json.JSONArray
 import org.json.JSONObject
