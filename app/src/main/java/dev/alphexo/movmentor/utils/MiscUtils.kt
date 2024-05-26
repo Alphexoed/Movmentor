@@ -1,5 +1,8 @@
 package dev.alphexo.movmentor.utils
 
+import dev.alphexo.movmentor.train.models.data.SearchQuery
+import dev.alphexo.movmentor.train.models.data.TimetableResult
+import dev.alphexo.movmentor.train.models.data.buildTimetableResult
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -34,8 +37,8 @@ fun JSONArray.toJSONObjectList(): List<JSONObject> = (0 until length()).map { ge
 
 
 object DateFormats {
-    val dayMonthYear = "dd-MM-yyyy"
-    val yearMonthDay = "yyyy-MM-dd"
+    const val dayMonthYear = "dd-MM-yyyy"
+    const val yearMonthDay = "yyyy-MM-dd"
 }
 
 fun convertDateFormat(originalFormat: String, desiredFormat: String, dateString: String): String {
@@ -50,3 +53,41 @@ fun convertDateFormat(originalFormat: String, desiredFormat: String, dateString:
 fun calculateNode(nodeId: String): String {
     return "${nodeId.substring(0, 2)}-${nodeId.substring(2).trimStart('0')}"
 }
+
+
+class MiscTrains {
+    fun searchQueryLogic(searchQueryList: MutableList<SearchQuery>, stationsEndpointResult: JSONArray) {
+        searchQueryList.clear()
+
+        stationsEndpointResult.customMap { station ->
+            val distancia = station.optInt("Distancia", 0)
+            val nodeId = station.optInt("NodeID", 0)
+            val nome = station.optString("Nome", "undefined")
+            searchQueryList.add(SearchQuery(distancia, nodeId, nome))
+        }
+    }
+
+    fun searchTripResultLogic(
+        timetableResultList: MutableList<TimetableResult>, stationsTripsResult: JSONObject
+    ) {
+        timetableResultList.clear()
+
+        val tripResultInfra =
+            stationsTripsResult.optJSONArray("resp:infra")?.toJSONObjectList() ?: emptyList()
+        val tripResultCP = stationsTripsResult.getJSONArray("resp:cp").toJSONObjectList()
+
+        val cpPlatforms = tripResultCP.map { jsonObject ->
+            mapOf(
+                "trainNumber" to jsonObject.getString("trainNumber"),
+                "platform" to jsonObject.getString("platform")
+            )
+        }.associateBy { it["trainNumber"] } // Map for faster lookup
+
+        tripResultInfra.forEach { infraObject ->
+            val cpPlatform = cpPlatforms[infraObject.getString("NComboio1")]
+            infraObject.put("CP:Plataforma", cpPlatform?.get("platform"))
+            timetableResultList.add(buildTimetableResult(infraObject))
+        }
+    }
+}
+
