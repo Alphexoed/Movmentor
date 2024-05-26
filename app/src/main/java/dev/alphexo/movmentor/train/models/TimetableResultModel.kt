@@ -69,6 +69,7 @@ fun TimetableResultModel(
                 Intent(context, TrainScheduleActivity::class.java).let {
                     it.putExtra("currentStation", currentStation)
                     it.putExtra("trainNumber", trainNumber)
+                    it.putExtra("warnings", warnings)
                     it.putExtra("date", fromToDate?.from?.get(FromToDateKey.DATE))
                     context.startActivity(it)
                 }

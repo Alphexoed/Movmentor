@@ -16,6 +16,7 @@ enum class FromToDateKey {
 class FromToDate {
     lateinit var from: Map<FromToDateKey, String>
     lateinit var to: Map<FromToDateKey, String>
+    var single: Map<FromToDateKey, String>? = null
 }
 
 

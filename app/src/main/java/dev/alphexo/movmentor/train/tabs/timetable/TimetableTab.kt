@@ -53,10 +53,8 @@ import dev.alphexo.movmentor.train.endpoints.Timetable
 import dev.alphexo.movmentor.train.models.TimetableResultModel
 import dev.alphexo.movmentor.train.models.data.SearchQuery
 import dev.alphexo.movmentor.train.models.data.TimetableResult
-import dev.alphexo.movmentor.train.models.data.buildTimetableResult
 import dev.alphexo.movmentor.train.models.data.getServiceType
-import dev.alphexo.movmentor.utils.customMap
-import dev.alphexo.movmentor.utils.toJSONObjectList
+import dev.alphexo.movmentor.utils.MiscTrains
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -98,6 +96,7 @@ fun TimetableTab() {
     var text by remember { mutableStateOf("") }
     var active by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    val miscTrains = remember { MiscTrains() }
     val timetableEndpoint = Timetable()
     val stationsEndpoint = Stations()
     val searchQueryList = remember { mutableStateListOf<SearchQuery>() }
@@ -194,7 +193,11 @@ fun TimetableTab() {
                         }.await()
 
                         // Handle the result on the main thread
-                        stationsEndpointResult?.let { searchQueryLogic(searchQueryList, it) }
+                        stationsEndpointResult?.let {
+                            miscTrains.searchQueryLogic(
+                                searchQueryList, it
+                            )
+                        }
                     }
                 },
                 onSearch = {
@@ -253,7 +256,7 @@ fun TimetableTab() {
                                     // Handle the result on the main thread
                                     isLoading = false
                                     stationsTripsResult?.let {
-                                        searchTripResultLogic(timetableResultList, it)
+                                        miscTrains.searchTripResultLogic(timetableResultList, it)
                                     }
                                 }
                             }, headlineContent = {
@@ -314,36 +317,3 @@ fun TimetableTab() {
     }
 }
 
-fun searchQueryLogic(searchQueryList: MutableList<SearchQuery>, stationsEndpointResult: JSONArray) {
-    searchQueryList.clear()
-
-    stationsEndpointResult.customMap { station ->
-        val distancia = station.optInt("Distancia", 0)
-        val nodeId = station.optInt("NodeID", 0)
-        val nome = station.optString("Nome", "undefined")
-        searchQueryList.add(SearchQuery(distancia, nodeId, nome))
-    }
-}
-
-fun searchTripResultLogic(
-    timetableResultList: MutableList<TimetableResult>, stationsTripsResult: JSONObject
-) {
-    timetableResultList.clear()
-
-    val tripResultInfra =
-        stationsTripsResult.optJSONArray("resp:infra")?.toJSONObjectList() ?: emptyList()
-    val tripResultCP = stationsTripsResult.getJSONArray("resp:cp").toJSONObjectList()
-
-    val cpPlatforms = tripResultCP.map { jsonObject ->
-        mapOf(
-            "trainNumber" to jsonObject.getString("trainNumber"),
-            "platform" to jsonObject.getString("platform")
-        )
-    }.associateBy { it["trainNumber"] } // Map for faster lookup
-
-    tripResultInfra.forEach { infraObject ->
-        val cpPlatform = cpPlatforms[infraObject.getString("NComboio1")]
-        infraObject.put("CP:Plataforma", cpPlatform?.get("platform"))
-        timetableResultList.add(buildTimetableResult(infraObject))
-    }
-}
