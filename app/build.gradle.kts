@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0" // this version matches your Kotlin version
 
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
@@ -16,7 +17,7 @@ android {
         minSdk = 31
         targetSdk = 34
         versionCode = 8
-        versionName = "2.0.8"
+        versionName = "2.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
