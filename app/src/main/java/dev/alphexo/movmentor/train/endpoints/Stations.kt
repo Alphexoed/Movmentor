@@ -20,12 +20,8 @@ class Stations {
             method = RequestMethod.GET,
             url = "$apiCP/siv/stations",
             authorization = Pair("Bearer", Auth.getToken()!!)
-        ) { statusCode: Int, response: String ->
-            if (statusCode == 200) {
-                addAll(response.map { stations.build(JSONObject(it.toString())) })
-            } else {
-                addAll(stations.getOffline().map { stations.build(JSONObject(it.toString())) })
-            }
+        ) { _: Int, response: String ->
+            addAll(response.map { stations.build(JSONObject(it.toString())) })
         }
     }
 
