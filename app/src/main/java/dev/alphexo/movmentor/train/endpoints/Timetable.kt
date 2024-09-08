@@ -1,5 +1,6 @@
 package dev.alphexo.movmentor.train.endpoints
 
+import android.util.Log
 import dev.alphexo.movmentor.network.NetworkInterface
 import dev.alphexo.movmentor.network.NetworkInterface.RequestMethod
 import dev.alphexo.movmentor.utils.calculateNode

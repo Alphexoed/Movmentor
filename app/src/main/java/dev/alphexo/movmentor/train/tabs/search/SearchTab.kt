@@ -1,21 +1,30 @@
 package dev.alphexo.movmentor.train.tabs.search
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.NorthEast
 import androidx.compose.material.icons.rounded.SouthEast
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,12 +32,15 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -51,7 +63,7 @@ import org.json.JSONArray
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true, showBackground = true)
+//@Preview(showSystemUi = true, showBackground = true)
 fun SearchTab() {
     val currentTime by remember { mutableStateOf(CurrentTime()) }
     var departureText by remember { mutableStateOf("") }
@@ -59,7 +71,7 @@ fun SearchTab() {
     var departureActive by remember { mutableStateOf(false) }
     var destinationActive by remember { mutableStateOf(false) }
     var departureQuery by remember { mutableStateOf<SearchQuery?>(null) }
-    var destinationQuery by remember { mutableStateOf<SearchQuery?>(null) }
+    val destinationQuery by remember { mutableStateOf<SearchQuery?>(null) }
     val departureSearchQueryList = remember { mutableStateListOf<SearchQuery>() }
     val destinationSearchQueryList = remember { mutableStateListOf<SearchQuery>() }
     val tripsResultList = remember { mutableStateListOf<TripCalculate>() }
@@ -68,6 +80,20 @@ fun SearchTab() {
     val stationsEndpoint = Stations()
     var stationsEndpointResult by remember { mutableStateOf<JSONArray?>(null) }
 
+    fun handleListItemClick(searchQuery: SearchQuery) {
+        departureQuery = searchQuery
+        departureText = searchQuery.name
+        departureActive = false
+
+        coroutineScope.launch {
+            executeTrip(
+                departureQuery, destinationQuery, tripsResultList, coroutineScope, currentTime
+            )
+        }
+    }
+
+
+    /*
     Column {
         Box(
             Modifier
@@ -119,52 +145,7 @@ fun SearchTab() {
                     searchQueries.forEachIndexed { index, searchQuery ->
                         item(key = index) {
                             ListItem(modifier = Modifier.clickable {
-                                departureQuery = searchQuery
-                                departureText = searchQuery.name
-                                departureActive = false
-
-                                // Logic here...
-
-                                //isLoading = true
-//                            tripsResultList.clear()
-                                coroutineScope.launch {
-                                    executeTrip(
-                                        departureQuery,
-                                        destinationQuery,
-                                        tripsResultList,
-                                        coroutineScope,
-                                        currentTime
-                                    )
-                                }
-
-                                coroutineScope.launch {
-//                                val f2d = FromToDate()
-//
-//                                f2d.from = mapOf(
-//                                    FromToDateKey.DATE to currentTime.date,
-//                                    FromToDateKey.HOUR to currentTime.time
-//                                )
-//
-//                                f2d.to = mapOf(
-//                                    FromToDateKey.DATE to currentTime.date,
-//                                    FromToDateKey.HOUR to "23:59"
-//                                )
-
-
-//                                coroutineScope.async(Dispatchers.Default) {
-//                                    timetableEndpoint.getTimetable(
-//                                        searchQuery.nodeId, f2d
-//                                    ) { result ->
-//                                        stationsTripsResult = result
-//                                    }
-//                                }.await()
-
-                                    // Handle the result on the main thread
-//                                isLoading = false
-//                                stationsTripsResult?.let {
-//                                    searchTripResultLogic(timetableResultList, it)
-//                                }
-                                }
+                                handleListItemClick(searchQuery)
                             }, headlineContent = {
                                 Text(text = searchQuery.name)
                             }, supportingContent = {
@@ -226,49 +207,7 @@ fun SearchTab() {
                     searchQueries.forEachIndexed { index, searchQuery ->
                         item(key = index) {
                             ListItem(modifier = Modifier.clickable {
-                                destinationQuery = searchQuery
-                                destinationText = searchQuery.name
-                                destinationActive = false
-
-                                coroutineScope.launch {
-                                    executeTrip(
-                                        departureQuery,
-                                        destinationQuery,
-                                        tripsResultList,
-                                        coroutineScope,
-                                        currentTime
-                                    )
-                                }
-
-                                coroutineScope.launch {
-//                                val f2d = FromToDate()
-//
-//                                f2d.from = mapOf(
-//                                    FromToDateKey.DATE to currentTime.date,
-//                                    FromToDateKey.HOUR to currentTime.time
-//                                )
-//
-//                                f2d.to = mapOf(
-//                                    FromToDateKey.DATE to currentTime.date,
-//                                    FromToDateKey.HOUR to "23:59"
-//                                )
-
-
-                                    // Perform the network call on the background thread
-//                                coroutineScope.async(Dispatchers.Default) {
-//                                    timetableEndpoint.getTimetable(
-//                                        searchQuery.nodeId, f2d
-//                                    ) { result ->
-//                                        stationsTripsResult = result
-//                                    }
-//                                }.await()
-
-                                    // Handle the result on the main thread
-//                                isLoading = false
-//                                stationsTripsResult?.let {
-//                                    searchTripResultLogic(timetableResultList, it)
-//                                }
-                                }
+                                handleListItemClick(searchQuery)
                             }, headlineContent = {
                                 Text(text = searchQuery.name)
                             }, supportingContent = {
@@ -280,47 +219,15 @@ fun SearchTab() {
             }
         }
     }
+
+
+     */
 }
 
-//fun (
-//    departureQuery: SearchQuery?,
-//    destinationQuery: SearchQuery?,
-//    tripsResultList: MutableList<TripCalculate>,
-//    coroutineScope: CoroutineScope,
-//    currentTime: CurrentTime
-//) {
-//    coroutineScope.launch {
-//        val tripEndpoint = Trip()
-//
-//        if (!departureQuery?.name.isNullOrEmpty() && !departureQuery?.name.isNullOrEmpty()) {
-//            Log.w("executeTrigger", "OK!!!!")
-//
-//            tripsResultList.clear()
-//
-//            val f2d = FromToDate()
-//
-//            f2d.single = mapOf(
-//                FromToDateKey.DATE to currentTime.date, FromToDateKey.HOUR to currentTime.time
-//            )
-//
-//            // Perform the network call on the background thread
-//            coroutineScope.async(Dispatchers.Default) {
-//                tripEndpoint.calculateTrip(
-//                    Pair(
-//                        calculateNode(departureQuery.nodeId.toString()),
-//                        calculateNode(destinationQuery.nodeId.toString())
-//                    ), f2d
-//                ) { _: Int, response: TripCalculate ->
-//                    Log.w("TripCalculate", response.trips.toString())
-//
-//                }
-//            }.await()
-//
-//            // Handle the result on the main thread
-//
-//        }
-//    }
-//}
+
+
+
+
 
 private suspend fun executeTrip(
     dep: SearchQuery?,
